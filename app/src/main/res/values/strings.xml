@@ -1,3 +1,7 @@
 <resources>
+    <!--    TEXT CONTENT-->
     <string name="app_name">Draft Lifecycle</string>
+    <string name="loginPageIntro">Welcome to the LifeCycle app...</string>
+
+    <!--    HINTS-->
 </resources>
