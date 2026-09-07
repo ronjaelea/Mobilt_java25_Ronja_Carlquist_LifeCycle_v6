@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/profileNav"
+        android:title="@string/profile"
+        android:icon="@android:drawable/ic_menu_myplaces"
+    />
+    <item
+        android:id="@+id/stepCounterNav"
+        android:title="@string/step_counter"
+        android:icon="@android:drawable/ic_menu_compass"
+    />
+    <item
+        android:id="@+id/logoutNav"
+        android:title="@string/log_out"
+        android:icon="@android:drawable/ic_lock_power_off"
+    />
+
+</menu>

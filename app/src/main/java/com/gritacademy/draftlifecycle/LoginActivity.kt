@@ -28,8 +28,8 @@ class LoginActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        // Firebase Auth återställer sin egen session från disk. Finns en användare
-        // redan -> hoppa direkt till User space utan att visa login.
+        // Firebase Auth återställer sin egen session från disk
+        // finns anv redan -> hoppa direkt till Profile utan att visa login
         if (auth.currentUser != null) {
             goToUserSpace()
             return
@@ -82,7 +82,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun goToUserSpace() {
-        startActivity(Intent(this, UserSpaceActivity::class.java))
-        finish()
+        startActivity(Intent(this, ProfileActivity::class.java))
+        finish() // ser till att LoginActivity inte hamnar i back stack
+        // dvs bakåtknappen kommer lämna appen istället för att gå tillbaka t login
     }
 }

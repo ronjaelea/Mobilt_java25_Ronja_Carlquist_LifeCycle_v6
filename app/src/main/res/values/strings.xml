@@ -4,13 +4,21 @@
     <string name="welcome_login">Welcome!\nLog in to get started:</string>
 
     <!--    BUTTONS, HINTS ETC.     -->
+    <string name="profile">Profile</string>
+    <string name="step_counter">Step Counter</string>
     <string name="log_in">Log in</string>
     <string name="log_out">Log out</string>
+
     <string name="email_hint">Email</string>
     <string name="password_hint">Password</string>
 
-    <!--    USER SPACE (placeholder)    -->
-    <string name="user_space_title">User space</string>
+
+    <!--    PROFILE    -->
+
+
+    <!--    STEP COUNTER    -->
+<!--    <string name="step_counter">Step Counter</string>-->
+    <string name="current_count">[current step count]</string>
 
     <!--    ERRORS    -->
     <string name="login_error_empty">Enter your email and password</string>

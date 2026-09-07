@@ -26,7 +26,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".UserSpaceActivity"
+            android:name=".BottomNavActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".StepCounterActivity"
             android:exported="false" />
     </application>
 
