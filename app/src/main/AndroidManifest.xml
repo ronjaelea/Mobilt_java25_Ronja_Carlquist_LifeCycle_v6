@@ -7,7 +7,9 @@
     <!-- Runtime permission on API 33+; needed for the step-counter service notification. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!--    android:name=".App" för att köra App.java vid start -->
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -25,9 +27,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".BottomNavActivity"
-            android:exported="false" />
         <activity
             android:name=".ProfileActivity"
             android:exported="false" />

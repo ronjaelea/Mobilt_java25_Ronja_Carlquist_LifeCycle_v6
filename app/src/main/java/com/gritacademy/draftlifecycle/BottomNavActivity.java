@@ -47,6 +47,7 @@ public abstract class BottomNavActivity extends AppCompatActivity {
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        // efter logout kan man ej backa "tillbaka in"
         startActivity(intent);
         finish();
     }

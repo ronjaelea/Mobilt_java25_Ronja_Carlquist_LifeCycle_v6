@@ -33,7 +33,21 @@
     <!--    text views för alla anv uppg -->
     <!--    android:text hämtas från Firebase (i koden)...    -->
 
+        <!-- TEMP: diagnostik för Phase 3, ersätts av riktiga fält i Phase 4 -->
+        <TextView
+            android:id="@+id/profileData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/profile_loading"
+            android:textSize="15sp" />
 
+        <Button
+            android:id="@+id/saveTestProfileBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/save_test_profile" />
 
     </LinearLayout>
 
