@@ -11,10 +11,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-/* läser/skriver profilen på users/<uid>, skapas bara när någon är inloggad. */
+/** läser/skriver profilen på users/uid (Firebase) */
 public class ProfileRepository {
 
-    // ProfileActivity implementerar för att kunna anropa
+    /** ProfileActivity implementerar interface för att kunna hämta uppgifter vid onStart() */
     public interface Listener {
         void onLoaded(@Nullable UserProfile profile); // null = ingen profil sparad än
         void onError(DatabaseError error);
@@ -27,32 +27,52 @@ public class ProfileRepository {
         ref = FirebaseDatabase.getInstance().getReference("users").child(uid);
     }
 
-    // skriver profile-objektet till rätt path i firebase (ref)
-    // Task för att kunna visa fel...
+    /** skriver profile-objektet till rätt path i firebase (ref)
+     * task för att kunna visa fel...
+     * anropas i EditProfileActivity */
     public Task<Void> save(UserProfile profile) {
         return ref.setValue(profile);
     }
 
-    // körs vid varje ändring
-    // returnerar inte UserProfile till ProfileActivity utan ValueEventListener
-    // (datan kommer som callback)
+     /** körs vid varje ändring
+      * returnerar inte UserProfile till ProfileActivity utan ValueEventListener
+      * (datan kommer som callback) */
     public ValueEventListener load(Listener listener) {
         ValueEventListener registration = new ValueEventListener() {
             @Override
             public void onDataChange(@Nullable DataSnapshot snapshot) {
                 listener.onLoaded(snapshot.getValue(UserProfile.class));
             }
-            // om permission saknas (ej om internet saknas, då finns cache)
             @Override
             public void onCancelled(DatabaseError error) {
                 listener.onError(error);
             }
-        };
+        };  // om permission saknas (ej om internet saknas, då finns cache)
         ref.addValueEventListener(registration); // automatisk uppdatering vid ändring av data
         return registration;
     }
 
     public void stop(ValueEventListener registration) {
         ref.removeEventListener(registration);
+    }
+
+    /** läser bara en gång för att kunna prefill formuläret */
+    public void loadOnce(Listener listener) {
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                listener.onLoaded(snapshot.getValue(UserProfile.class));
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                listener.onError(error);
+            }
+        });
+    }
+
+    /** skriver bara ett fält (users/uid/weight), inte hela objektet.
+     * (för att kunna ha weight spinner direkt på profilsidan utan att behöva öppna form */
+    public Task<Void> updateWeight(int kg) {
+        return ref.child("weight").setValue(kg);
     }
 }

@@ -1,5 +1,9 @@
 package com.gritacademy.draftlifecycle.model;
 
+import java.util.Calendar;
+
+import com.google.firebase.database.Exclude;
+
 public class UserProfile {
 
     private String name;
@@ -9,8 +13,7 @@ public class UserProfile {
     private Integer height;
     private Integer weight;
     private boolean newsletter;
-    // inget riktigt utskick, endast för att få in checkbox som input type
-
+    // finns inget riktigt utskick, endast för att få in checkbox som input type
 
     public UserProfile() {
     }
@@ -56,5 +59,40 @@ public class UserProfile {
     }
     public void setNewsletter(boolean newsletter) {
         this.newsletter = newsletter;
+    }
+
+    /** @Exclude = är inte en del av själva profile-objektet,
+      * används för att räkna ut andra värden */
+
+    /** ålder visas i år utifrån birthdate ("yyyy-mm-dd").
+     * blir -1 om saknas/trasig (vilket visas som "-") */
+    @Exclude
+    public int getAge() {
+        if (birthdate == null) return -1;
+        String[] parts = birthdate.split("-");
+        if (parts.length != 3) return -1;
+        try {
+            int year = Integer.parseInt(parts[0]);
+            int month = Integer.parseInt(parts[1]);
+            int day = Integer.parseInt(parts[2]);
+            Calendar today = Calendar.getInstance();
+            int age = today.get(Calendar.YEAR) - year;
+            int monthToday = today.get(Calendar.MONTH) + 1; // Calendar.MONTH är 0-baserad
+            int dayToday = today.get(Calendar.DAY_OF_MONTH);
+            if (monthToday < month || (monthToday == month && dayToday < day)) {
+                age--; // födelsedagen har inte varit i år än
+            }
+            return age;
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    /** BMI = kg / m². NaN om height/weight saknas eller height är 0 */
+    @Exclude
+    public double getBmi() {
+        if (height == null || weight == null || height == 0) return Double.NaN;
+        double meters = height / 100.0;
+        return weight / (meters * meters);
     }
 }

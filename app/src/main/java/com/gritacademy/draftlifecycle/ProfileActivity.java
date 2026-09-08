@@ -1,6 +1,9 @@
 package com.gritacademy.draftlifecycle;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,13 +15,21 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Locale;
+
+/** extends nav-bar-klassen som i sin tur extends AppCompatActivity */
 public class ProfileActivity extends BottomNavActivity {
-    // extends klassen för nav bar som i sin tur extends AppCompatActivity
 
+    /** nedanstående 2 ints endast för att begränsa spinnerns intervall,
+     *  i formuläret kan vilket nummer som helst sparas */
+    private static final int WEIGHT_MIN = 30;
+    private static final int WEIGHT_MAX = 250;
     private ProfileRepository repo;
-    private ValueEventListener registration;
-
-    private TextView profileData;
+    private ValueEventListener profileUpdate;
+    private TextView valueName, valueEmail, valueAge, valueGender, valueHeight, valueBmi;
+    private NumberPicker weightPicker;
+    private Button saveWeightBtn;
+    private UserProfile lastProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,30 +38,47 @@ public class ProfileActivity extends BottomNavActivity {
         setUpBottomNav(R.id.profileNav);
 
         repo = new ProfileRepository();
-        profileData = findViewById(R.id.profileData);
 
+        valueName = findViewById(R.id.valueName);
+        valueEmail = findViewById(R.id.valueEmail);
+        valueAge = findViewById(R.id.valueAge);
+        valueGender = findViewById(R.id.valueGender);
+        valueHeight = findViewById(R.id.valueHeight);
+        valueBmi = findViewById(R.id.valueBmi);
+
+        weightPicker = findViewById(R.id.weightPicker);
+        weightPicker.setMinValue(WEIGHT_MIN);
+        weightPicker.setMaxValue(WEIGHT_MAX);
+        weightPicker.setWrapSelectorWheel(false);
+
+        saveWeightBtn = findViewById(R.id.saveWeightBtn);
+        saveWeightBtn.setOnClickListener(v -> saveWeight());
+        setWeightControlsEnabled(false); // tills en profil laddats
+
+        findViewById(R.id.editProfileBtn).setOnClickListener(
+                v -> startActivity(new Intent(this, EditProfileActivity.class)));
+
+        /** till skillnad fr övr fält hämtas email inte från de sparade fälten i db
+         * utan från FirebaseUser */
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        ((TextView) findViewById(R.id.profileEmail))
-                .setText(user != null ? user.getEmail() : "");
-
-        findViewById(R.id.saveTestProfileBtn).setOnClickListener(v -> saveTestProfile());
+        valueEmail.setText(getString(R.string.label_email,
+                user != null ? user.getEmail() : getString(R.string.value_none)));
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        // börja lyssna när skärmen blir synlig
-        registration = repo.load(new ProfileRepository.Listener() {
+        // live-lyssnare, uppdaterar automatiskt även när man kommer tillbaka från formuläret
+        profileUpdate = repo.load(new ProfileRepository.Listener() {
             @Override
             public void onLoaded(UserProfile profile) {
                 showProfile(profile);
             }
-
             @Override
             public void onError(DatabaseError error) {
-                String msg = getString(R.string.profile_load_failed, error.getMessage());
-                profileData.setText(msg);
-                Toast.makeText(ProfileActivity.this, msg, Toast.LENGTH_LONG).show();
+                Toast.makeText(ProfileActivity.this,
+                        getString(R.string.profile_load_failed, error.getMessage()),
+                        Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -58,46 +86,74 @@ public class ProfileActivity extends BottomNavActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        // sluta lyssna när skärmen inte längre är synlig -> ingen läcka, inga
-        // callbacks till en död vy
-        if (registration != null) {
-            repo.stop(registration);
-            registration = null;
+        if (profileUpdate != null) {
+            repo.stop(profileUpdate);
+            profileUpdate = null;
         }
     }
 
-    private void saveTestProfile() {
-        UserProfile p = new UserProfile();
-        p.setName("Ro Ca");
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        p.setEmail(user != null ? user.getEmail() : null);
-        p.setBirthdate("1995-06-15");
-        p.setGender(Gender.WOMAN);
-        p.setHeight(181);
-        p.setWeight(70);
-        p.setNewsletter(true);
+    private void showProfile(UserProfile p) {
+        lastProfile = p;
+        String none = getString(R.string.value_none);
 
-        repo.save(p)
-                .addOnSuccessListener(unused -> Toast.makeText(
-                        this, R.string.profile_saved, Toast.LENGTH_SHORT).show())
+        if (p == null) {
+            valueName.setText(getString(R.string.label_name, none));
+            valueAge.setText(getString(R.string.label_age, none));
+            valueGender.setText(getString(R.string.label_gender, none));
+            valueHeight.setText(getString(R.string.label_height, none));
+            valueBmi.setText(getString(R.string.label_bmi, none));
+            setWeightControlsEnabled(false);
+            return;
+        }
+
+        valueName.setText(getString(R.string.label_name,
+                p.getName() != null ? p.getName() : none));
+
+        int age = p.getAge();
+        valueAge.setText(getString(R.string.label_age,
+                age >= 0 ? String.valueOf(age) : none));
+
+        valueGender.setText(getString(R.string.label_gender, genderLabel(p.getGender())));
+
+        valueHeight.setText(getString(R.string.label_height,
+                p.getHeight() != null ? String.valueOf(p.getHeight()) : none));
+
+        double bmi = p.getBmi();
+        valueBmi.setText(getString(R.string.label_bmi,
+                Double.isNaN(bmi) ? none : String.format(Locale.US, "%.1f", bmi)));
+
+        setWeightControlsEnabled(true);
+        if (p.getWeight() != null) {
+            int clamped = Math.max(WEIGHT_MIN, Math.min(WEIGHT_MAX, p.getWeight()));
+            weightPicker.setValue(clamped);
+        }
+    }
+
+    /** weight kan sparas direkt på profilsidan utan att öppna formuläret */
+    private void saveWeight() {
+        if (lastProfile == null) return;
+        repo.updateWeight(weightPicker.getValue())
+                .addOnSuccessListener(u -> Toast.makeText(
+                        this, R.string.weight_updated, Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e -> Toast.makeText(
                         this, getString(R.string.profile_save_failed, e.getMessage()),
                         Toast.LENGTH_LONG).show());
     }
 
-    private void showProfile(UserProfile p) {
-        if (p == null) {
-            profileData.setText(R.string.profile_none);
-            return;
+    private void setWeightControlsEnabled(boolean enabled) {
+        weightPicker.setEnabled(enabled);
+        saveWeightBtn.setEnabled(enabled);
+    }
+
+    /** enum values ska alltid vara UPPERCASE men vill
+     * visa det snyggare så anger custom strings */
+    private String genderLabel(Gender g) {
+        if (g == null) return getString(R.string.value_none);
+        switch (g) {
+            case WOMAN: return getString(R.string.gender_woman);
+            case MAN: return getString(R.string.gender_man);
+            case NON_BINARY: return getString(R.string.gender_non_binary);
+            default: return getString(R.string.gender_unspecified);
         }
-        // tillfällig diagnostik-vy, Phase 4 ersätter med riktiga fält + labels
-        String text = "Name: " + p.getName()
-                + "\nEmail: " + p.getEmail()
-                + "\nBirthdate: " + p.getBirthdate()
-                + "\nGender: " + p.getGender()
-                + "\nHeight: " + p.getHeight() + " cm"
-                + "\nWeight: " + p.getWeight() + " kg"
-                + "\nNewsletter: " + p.isNewsletter();
-        profileData.setText(text);
     }
 }
