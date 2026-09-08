@@ -57,6 +57,8 @@ public class ProfileActivity extends BottomNavActivity {
 
         findViewById(R.id.editProfileBtn).setOnClickListener(
                 v -> startActivity(new Intent(this, EditProfileActivity.class)));
+                // ingen finish() här, denna sida hamnar i back stack
+                // så bakåt från formuläret blir i princip cancel + backa till profilen
 
         /** till skillnad fr övr fält hämtas email inte från de sparade fälten i db
          * utan från FirebaseUser */

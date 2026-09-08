@@ -80,6 +80,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
 
     private void showDatePicker() {
+        /** Calendar är en gammal klass men LocalDate funkar ej på API 24 (vilket min testenhet har) */
         Calendar start = Calendar.getInstance();
         String seed = currentBirthdate();
         if (seed != null) {
@@ -130,7 +131,7 @@ public class EditProfileActivity extends AppCompatActivity {
         repo.save(p)
                 .addOnSuccessListener(u -> {
                     Toast.makeText(this, R.string.profile_saved, Toast.LENGTH_SHORT).show();
-                    finish(); // tillbaka till Profile; dess live-lyssnare repaint:ar
+                    finish(); // tillbaka till ProfileActivity som uppdaterar automatiskt
                 })
                 .addOnFailureListener(e -> Toast.makeText(
                         this, getString(R.string.profile_save_failed, e.getMessage()),
