@@ -7,8 +7,7 @@
     android:orientation="vertical"
     tools:context=".StepCounterActivity">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -23,18 +22,29 @@
             android:text="@string/step_counter"
             android:textSize="24sp" />
 
-        <!--      current step count -->
         <TextView
             android:id="@+id/currentStepCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/current_count"
+            android:layout_marginTop="24dp"
+            android:textSize="64sp"
+            tools:text="0" />
 
-            android:textSize="20sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/steps_today"
+            android:textSize="16sp" />
 
+        <Button
+            android:id="@+id/resetStepsBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/reset" />
 
     </LinearLayout>
 
-    <include layout="@layout/view_bottom_nav"/>
+    <include layout="@layout/view_bottom_nav" />
 
 </LinearLayout>

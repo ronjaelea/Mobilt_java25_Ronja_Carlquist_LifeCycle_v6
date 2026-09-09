@@ -45,8 +45,10 @@
     <string name="edit_validation">Enter at least a name and birthdate</string>
 
     <!--    STEP COUNTER    -->
-<!--    <string name="step_counter">Step Counter</string>-->
-    <string name="current_count">[current step count]</string>
+    <string name="steps_today">steps today</string>
+    <string name="reset">Reset</string>
+    <string name="sensor_unavailable_title">Sensor unavailable</string>
+    <string name="no_step_sensor">This device has no accelerometer, so step counting isn\'t available.</string>
 
     <!--    ERRORS    -->
     <string name="login_error_empty">Enter your email and password</string>
