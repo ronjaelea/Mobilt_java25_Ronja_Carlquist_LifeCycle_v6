@@ -3,6 +3,7 @@ package com.gritacademy.draftlifecycle;
 import android.content.Intent;
 
 import androidx.annotation.IdRes;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -28,11 +29,20 @@ public abstract class BottomNavActivity extends AppCompatActivity {
                 openScreen(StepCounterActivity.class);
                 return true;
             } else if (id == R.id.logoutNav) {
-                logOut();
-                return true;
+                confirmLogout();
+                return false;
             }
             return false;
         });
+    }
+
+    private void confirmLogout() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.logout_confirm_title)
+                .setMessage(R.string.logout_confirm_message)
+                .setPositiveButton(R.string.log_out, (dialog, which) -> logOut())
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     private void openScreen(Class<?> target) {
@@ -42,8 +52,6 @@ public abstract class BottomNavActivity extends AppCompatActivity {
             // DEPRECATED!?
     }
     private void logOut() {
-        // borde ha confirmation dialog…
-        // meddelande och felhantering (t.ex om !internet...)
         stopService(new Intent(this, StepCounterService.class));
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(this, LoginActivity.class);

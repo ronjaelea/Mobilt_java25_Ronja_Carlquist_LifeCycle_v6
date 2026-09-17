@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
@@ -70,6 +71,8 @@ class LoginActivity : AppCompatActivity() {
                 setLoading(false)
                 if (task.isSuccessful) {
                     goToUserSpace()
+                } else if (task.exception is FirebaseNetworkException) {
+                    passwordLayout.error = getString(R.string.login_error_network)
                 } else {
                     passwordLayout.error = getString(R.string.login_error_failed)
                 }

@@ -8,6 +8,8 @@
     <string name="step_counter">Step Counter</string>
     <string name="log_in">Log in</string>
     <string name="log_out">Log out</string>
+    <string name="logout_confirm_title">Log out?</string>
+    <string name="logout_confirm_message">Step counting will stop until you log back in.</string>
 
     <string name="email_hint">Email</string>
     <string name="password_hint">Password</string>
@@ -59,5 +61,6 @@
     <!--    ERRORS    -->
     <string name="login_error_empty">Enter your email and password</string>
     <string name="login_error_failed">Login failed — check your email and password</string>
+    <string name="login_error_network">No internet connection — check your network and try again</string>
 
 </resources>
