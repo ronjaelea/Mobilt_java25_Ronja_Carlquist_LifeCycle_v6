@@ -1,4 +1,4 @@
-package com.gritacademy.draftlifecycle.steps;
+package com.gritacademy.draftlifecycle.util;
 
 /**
  * räknar steg ur råa accelerometervärden

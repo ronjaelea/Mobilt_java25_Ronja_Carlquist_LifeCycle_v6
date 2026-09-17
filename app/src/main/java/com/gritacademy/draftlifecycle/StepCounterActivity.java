@@ -16,7 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
-import com.gritacademy.draftlifecycle.steps.StepStore;
+import com.gritacademy.draftlifecycle.util.StepStore;
 
 /**
  * visar stegräkningen och startar/stoppar tjänsten som sköter sensorn & räkningen

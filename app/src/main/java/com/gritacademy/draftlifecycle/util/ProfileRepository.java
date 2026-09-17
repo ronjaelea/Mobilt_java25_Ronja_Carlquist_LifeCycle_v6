@@ -1,4 +1,4 @@
-package com.gritacademy.draftlifecycle.model;
+package com.gritacademy.draftlifecycle.util;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -10,6 +10,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.gritacademy.draftlifecycle.model.UserProfile;
 
 /** läser/skriver profilen på users/uid (Firebase) */
 public class ProfileRepository {

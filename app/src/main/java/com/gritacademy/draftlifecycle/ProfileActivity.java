@@ -8,7 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gritacademy.draftlifecycle.model.Gender;
-import com.gritacademy.draftlifecycle.model.ProfileRepository;
+import com.gritacademy.draftlifecycle.util.ProfileRepository;
 import com.gritacademy.draftlifecycle.model.UserProfile;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

@@ -1,4 +1,4 @@
-package com.gritacademy.draftlifecycle.steps;
+package com.gritacademy.draftlifecycle.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;

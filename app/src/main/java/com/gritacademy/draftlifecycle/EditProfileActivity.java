@@ -10,7 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.gritacademy.draftlifecycle.model.Gender;
-import com.gritacademy.draftlifecycle.model.ProfileRepository;
+import com.gritacademy.draftlifecycle.util.ProfileRepository;
 import com.gritacademy.draftlifecycle.model.UserProfile;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;

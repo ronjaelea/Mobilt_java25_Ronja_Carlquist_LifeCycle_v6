@@ -17,8 +17,8 @@ import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import com.gritacademy.draftlifecycle.steps.StepDetector;
-import com.gritacademy.draftlifecycle.steps.StepStore;
+import com.gritacademy.draftlifecycle.util.StepDetector;
+import com.gritacademy.draftlifecycle.util.StepStore;
 
 /**
  * räknar steg i bakgrunden. foreground service har sin egen livscykel,
