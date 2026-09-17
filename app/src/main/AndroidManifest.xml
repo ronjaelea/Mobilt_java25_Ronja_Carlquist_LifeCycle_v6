@@ -37,6 +37,9 @@
         <activity
             android:name=".StepCounterActivity"
             android:exported="false" />
+        <service
+            android:name=".StepCounterService"
+            android:exported="false" />
     </application>
 
 </manifest>

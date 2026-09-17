@@ -1,30 +1,43 @@
 package com.gritacademy.draftlifecycle;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 
-import com.gritacademy.draftlifecycle.steps.StepDetector;
 import com.gritacademy.draftlifecycle.steps.StepStore;
 
-public class StepCounterActivity extends BottomNavActivity implements SensorEventListener {
+/**
+ * visar stegräkningen och startar/stoppar tjänsten som sköter sensorn & räkningen
+ */
+public class StepCounterActivity extends BottomNavActivity {
 
-    private SensorManager sensorManager;
-    private Sensor accelerometer;
-    private StepDetector detector;
     private StepStore store;
-
-    private int steps;
+    private SharedPreferences stepPrefs;
 
     private TextView stepCountView;
+    private Button toggleBtn;
     private Button resetBtn;
+
+    private final SharedPreferences.OnSharedPreferenceChangeListener prefListener =
+            (prefs, key) -> {
+                if (StepStore.KEY_COUNT.equals(key)) updateStepView();
+            };
+
+    private final ActivityResultLauncher<String> notifPermission =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(),
+                    granted -> startCounting());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,20 +46,33 @@ public class StepCounterActivity extends BottomNavActivity implements SensorEven
         setUpBottomNav(R.id.stepCounterNav);
 
         store = new StepStore(this);
-        detector = new StepDetector();
+        stepPrefs = StepStore.prefs(this);
 
         stepCountView = findViewById(R.id.currentStepCount);
+        toggleBtn = findViewById(R.id.toggleCountingBtn);
         resetBtn = findViewById(R.id.resetStepsBtn);
+
+        toggleBtn.setOnClickListener(v -> {
+            if (StepCounterService.RUNNING) {
+                stopCounting();
+            } else {
+                ensurePermissionThenStart();
+            }
+        });
+
         resetBtn.setOnClickListener(v -> {
-            store.resetNow();
-            steps = 0;
-            detector.reset();
+            if (StepCounterService.RUNNING) {
+                startService(new Intent(this, StepCounterService.class)
+                        .setAction(StepCounterService.ACTION_RESET));
+            } else {
+                store.resetNow();
+            }
             updateStepView();
         });
 
-        sensorManager = getSystemService(SensorManager.class);
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        if (accelerometer == null) {
+        SensorManager sm = getSystemService(SensorManager.class);
+        if (sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) == null) {
+            toggleBtn.setEnabled(false);
             resetBtn.setEnabled(false);
             new AlertDialog.Builder(this)
                     .setTitle(R.string.sensor_unavailable_title)
@@ -57,52 +83,53 @@ public class StepCounterActivity extends BottomNavActivity implements SensorEven
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        stepPrefs.registerOnSharedPreferenceChangeListener(prefListener);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-        store.resetIfNewDay(); // om ny dag medan appen var stängd
-        steps = store.getSteps();
+        store.resetIfNewDay();
         updateStepView();
-
-        if (accelerometer != null) {
-            // registrera lyssnaren först när skärmen är i förgrunden -> sparar batteri
-            sensorManager.registerListener(this, accelerometer,
-                    SensorManager.SENSOR_DELAY_GAME);
-        }
+        syncToggleLabel();
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        // avregistrera direkt när vi lämnar foreground, annars drar sensorn ström i onödan
-        sensorManager.unregisterListener(this);
-        store.setSteps(steps);
+    protected void onStop() {
+        super.onStop();
+        stepPrefs.unregisterOnSharedPreferenceChangeListener(prefListener);
     }
 
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) return;
-
-        if (store.resetIfNewDay()) { // om klockan slog midnatt medan skärmen var på
-            steps = 0;
-            detector.reset();
-        }
-
-        boolean stepTaken = detector.onSample(
-                event.values[0], event.values[1], event.values[2],
-                SystemClock.elapsedRealtime());
-        if (stepTaken) {
-            steps++;
-            store.setSteps(steps);
-            updateStepView();
+    private void ensurePermissionThenStart() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+            notifPermission.launch(Manifest.permission.POST_NOTIFICATIONS);
+        } else {
+            startCounting();
         }
     }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // behövs inte för stegräkning
+    private void startCounting() {
+        ContextCompat.startForegroundService(this,
+                new Intent(this, StepCounterService.class));
+        toggleBtn.setText(R.string.stop_counting);
+    }
+
+    private void stopCounting() {
+        startService(new Intent(this, StepCounterService.class)
+                .setAction(StepCounterService.ACTION_STOP));
+        toggleBtn.setText(R.string.start_counting);
+    }
+
+    private void syncToggleLabel() {
+        toggleBtn.setText(StepCounterService.RUNNING
+                ? R.string.stop_counting : R.string.start_counting);
     }
 
     private void updateStepView() {
-        stepCountView.setText(String.valueOf(steps));
+        stepCountView.setText(String.valueOf(store.getSteps()));
     }
 }

@@ -37,10 +37,18 @@
             android:textSize="16sp" />
 
         <Button
-            android:id="@+id/resetStepsBtn"
+            android:id="@+id/toggleCountingBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:text="@string/start_counting" />
+
+        <Button
+            android:id="@+id/resetStepsBtn"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:text="@string/reset" />
 
     </LinearLayout>

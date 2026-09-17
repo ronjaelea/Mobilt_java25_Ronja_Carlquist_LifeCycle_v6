@@ -44,6 +44,7 @@ public abstract class BottomNavActivity extends AppCompatActivity {
     private void logOut() {
         // borde ha confirmation dialog…
         // meddelande och felhantering (t.ex om !internet...)
+        stopService(new Intent(this, StepCounterService.class));
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);

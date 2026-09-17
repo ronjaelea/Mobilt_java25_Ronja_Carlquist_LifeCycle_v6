@@ -11,15 +11,20 @@ import java.util.Locale;
  * (lagrat på enheten, inte i Firebase) */
 public class StepStore {
 
-    private static final String PREFS = "steps";
-    private static final String KEY_COUNT = "count";
+    public static final String PREFS = "steps";
+    public static final String KEY_COUNT = "count";
     private static final String KEY_LAST_RESET = "last_reset_date";
 
     private final SharedPreferences prefs;
 
+    /** samma SharedPrefs-fil som konstruktorn — så aktiviteten kan lyssna på ändringar. */
+    public static SharedPreferences prefs(Context context) {
+        // MODE_PRIVATE så att bara den här appen kan läsa filen
+        return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+    }
+
     public StepStore(Context context) {
-        // MODE_PRIVATE: bara den här appen kan läsa filen
-        prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        prefs = prefs(context);
     }
 
     public int getSteps() {
@@ -27,7 +32,7 @@ public class StepStore {
     }
 
     public void setSteps(int steps) {
-        prefs.edit().putInt(KEY_COUNT, steps).apply(); // apply() = skriv asynkront
+        prefs.edit().putInt(KEY_COUNT, steps).apply();
     }
 
     /**
